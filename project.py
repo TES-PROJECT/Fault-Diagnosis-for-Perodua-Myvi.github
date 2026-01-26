@@ -1,10 +1,14 @@
 import streamlit as st
 import clips
 import logging
+with open(".streamlit/main.css") as f:
+    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+if "has_started" not in st.session_state:
+    st.session_state.has_started = False
 
 if "mode" not in st.session_state:
-    st.session_state.mode = "menu"
-
+    st.session_state.mode = "welcome"
+    
 #setup working environment
 logging.basicConfig(level=logging.INFO,format='%(message)s')
 env = clips.Environment()
@@ -1214,12 +1218,91 @@ class knowledge_bass:
         self.suspension_kb()
         self.steering_kb()
 
+# ==============================
+# UI-only question image
+# ==============================
+QUESTION_IMAGES = {
+
+    # -------- Electrical --------
+    "instrument-panel-dim": {
+        "images": ["picture/2.png"]
+    },
+
+    "battery-light-on-myvi-dash": {
+        "images": ["picture/5.png"]
+    },
+
+    "headlights-dim-at-idle": {
+        "images": ["picture/6.png"]
+    },
+
+    "myvi-gear-in-p-position": {
+        "images": ["picture/9.png"]
+    },
+
+    "myvi-brake-pedal-pressed": {
+        "images": ["picture/10.png"]
+    },
+
+    # -------- Engine --------
+    "myvi-check-engine-light": {
+        "images": ["picture/15.png"]
+    },
+
+    "myvi-fuel-gauge-above-quarter": {
+        "images": ["picture/18.png"]
+    },
+
+    "myvi-air-filter-box-dirty": {
+        "images": ["picture/25.png"]
+    },
+
+    # -------- Cooling --------
+    "myvi-temp-gauge-in-red": {
+        "images": ["picture/26.png"]
+    },
+
+    "myvi-coolant-reservoir-low": {
+        "images": ["picture/28_1.png", "picture/28_2.png"]
+    },
+
+    "myvi-normal-on-highway": {
+        "images": ["picture/31.png"]
+    },
+
+    "myvi-temp-never-reaches-middle": {
+        "images": ["picture/31.png"] 
+    },
+
+    # -------- Brake --------
+    "myvi-brake-warning-light": {
+        "images": ["picture/36.png"]
+    },
+
+    "myvi-shift-lock-problem": {
+        "images": ["picture/37.png"]
+    },
+
+    "myvi-brake-dust-front-wheels": {
+        "images": ["picture/39.png"]
+    },
+}
+def render_question_with_hint(q_label, symptom_name):
+    st.markdown(
+        f"<div class='question-text'>{q_label}</div>",
+        unsafe_allow_html=True
+    )
+
+    if symptom_name in QUESTION_IMAGES:
+        with st.expander("💡 What does this look like?"):
+            for img in QUESTION_IMAGES[symptom_name]["images"]:
+                st.image(img, use_container_width=True)
+
 
 #------------------------------
 #Output Diagnostics and Solutions
 #------------------------------
 kb = knowledge_bass()
-
 def ask_symptom(category):
     questions = []
 
@@ -1233,16 +1316,27 @@ def ask_symptom(category):
     return questions
 
 def run_inference():
+    diagnosis_index = 1
     for fact in env.facts():
         if fact.template.name != "response":
             continue
 
         diagnosis = fact["diagnosis"]
 
-        st.success(f"Diagnosis: {diagnosis}")
-        st.write("**Potential Reason:**")
-        st.write(fact["potential_reason"])
+        st.markdown(
+        f"""
+            <div class="diagnosis-card">
 
+            <div class="diagnosis-title">{diagnosis_index}. {diagnosis}</div>
+
+            <div class="diagnosis-section">Potential Reason</div>
+            <div class="diagnosis-reason">
+                {fact["potential_reason"]}
+            </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
         if "recommendation" in fact and fact["recommendation"]:
             print("\nRecommendation:")
@@ -1258,11 +1352,28 @@ def run_inference():
         solutions.sort(key=lambda x: x["order"])
 
         if solutions:
-            st.subheader("Solutions")
+            st.markdown(
+                '<div class="solution-block">', 
+                unsafe_allow_html=True
+            )
+
+            st.markdown(
+                '<div class="diagnosis-section">Solution</div>', 
+                unsafe_allow_html=True
+            )
+
             for sol in solutions:
                 with st.expander(sol["title"]):
+                    st.markdown("**Step:**")
                     for i, step in enumerate(sol["steps"], 1):
                         st.write(f"{i}. {step}")
+            
+        st.markdown(
+            '<hr class="diagnosis-divider">', 
+            unsafe_allow_html=True
+        )
+
+        diagnosis_index += 1
 
 def active_expert_system():
     mode = st.session_state.mode
@@ -1270,33 +1381,76 @@ def active_expert_system():
     # ======================
     #PAGE 1: MENU
     # ======================
+    if mode == "welcome":
+        st.markdown(
+            "<div class='page'>"
+                "<h2 class='welcome-hero'>Welcome to Fault Diagnosis for Perodua Myvi</h2>"
+                "<div class='welcome-title'></div>"
+                "<p class='welcome-subtitle'>"
+                "An expert system for diagnosing common vehicle faults based on observed symptoms.<br>Answer a series of simple questions to identify possible causes and recommended solutions."
+                "<br><br>"
+                "Click <strong>Start</strong> to begin the diagnosis process."
+                "</p>"
+            "</div>",
+            unsafe_allow_html=True
+        )
+
+        col1, col2, col3 = st.columns([2, 1, 2])
+
+        with col2:
+            if st.button("Start"):
+                st.session_state.has_started = True
+                st.session_state.mode = "menu"
+                st.rerun()
+
+        return
+
     if mode == "menu":
-        st.write("=========================================")
-        st.title("Welcome To Vehicle Diagnostics Expert System")
-        st.write("=========================================")
-        st.text("What kind of the Vehicle Fault Points ( Enter the number [1-11])")
-        st.text("1. Electrical Problem")
-        st.text("2. Engine & Fuel")
-        st.text("3. Cooling")
-        st.text("4. Brakes")
-        st.text("5. Tires & Wheels")
-        st.text("6. Transmission")
-        st.text("7. Air Conditioning")
-        st.text("8. Body")
-        st.text("9. Suspension")
-        st.text("10. Steering")
-        st.text("11. Not sure(Comprehensive inspection)")
+        st.markdown(
+            '<h2 class="menu-title">Fault Diagnosis for Perodua Myvi</h2>',
+            unsafe_allow_html=True
+        )
+
+        st.markdown('<div class="menu-divider"></div>', unsafe_allow_html=True)
+
+        st.markdown(
+            '<p class="menu-instruction">'
+            'Select a fault category to begin the diagnosis process.'
+            '</p>',
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            """
+            <ul class="menu-category-list">
+                <li>1. Electrical Problem</li>
+                <li>2. Engine & Fuel</li>
+                <li>3. Cooling</li>
+                <li>4. Brakes</li>
+                <li>5. Tires & Wheels</li>
+                <li>6. Transmission</li>
+                <li>7. Air Conditioning</li>
+                <li>8. Body</li>
+                <li>9. Suspension</li>
+                <li>10. Steering</li>
+                <li>11. Not sure (Comprehensive inspection)</li>
+            </ul>
+            """,
+            unsafe_allow_html=True
+        )
 
         choice = st.selectbox(
-            "Please Enter Your Choice (1–11):",
+            "Select a category (1–11):",
             list(range(1, 12)),
             key="menu_choice"
         )
 
-        if st.button("➡ Next"):
+        if st.button("➡ Continue"):
             st.session_state.choice = choice
             st.session_state.mode = "symptom"
             st.rerun()
+
+        st.markdown('</div>', unsafe_allow_html=True)
 
     # ======================
     #PAGE 2: SYMPTOMS
@@ -1346,46 +1500,85 @@ def active_expert_system():
 
         env.reset()
         questions = ask_symptom(category)
-        st.subheader("Symptom Checklist")
+        error_box = st.empty()
 
+        st.markdown(
+            '<h3 class="symptom-title">Symptom Checklist</h3>',
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            '<p class="symptom-instruction">'
+            'Please answer the following questions based on your vehicle condition.'
+            '</p>',
+            unsafe_allow_html=True
+        )
         num = 1
+        all_answered = True
+
         for symptom_name, sentence in questions:
             prev = st.session_state.answers.get(symptom_name)
-            choice = st.radio(
+            render_question_with_hint(
                 f"Q{num}. {sentence}",
-                ["YES", "NO"],
+                symptom_name
+            )
+            choice = st.radio(
+                label="dummy",
+                options=["YES", "NO"],
                 index=(
                     0 if prev == "YES"
                     else 1 if prev == "NO"
                     else None
                 ),
                 key=f"sym_{symptom_name}",
-                horizontal=True
+                horizontal=True,
+                label_visibility="collapsed"
             )
+            st.markdown("<div class='radio-tight'></div>", unsafe_allow_html=True)
+
+            if choice is None:
+                all_answered = False
 
             num = num + 1
             st.session_state.answers[symptom_name] = choice
-
-        col1, col2 = st.columns(2)
+        error_box = st.empty()
+        col1, _, col2 = st.columns([1, 4, 1])
 
         with col1:
             if st.button("⬅ Back"):
                 st.session_state.mode = "menu"
                 st.rerun()
+        
+        submit_clicked = False
 
         with col2:
-            if st.button("Submit"):
-                if any(v is None for v in st.session_state.answers.values()):
-                    st.error("Please answer ALL symptom questions before continuing.")
-                else:
-                    st.session_state.mode = "result"
-                    st.rerun()
+            submit_clicked = st.button("Submit")
+
+        if submit_clicked:
+            if not all_answered:
+                error_box.error(
+                    "Please answer ALL symptom questions before continuing."
+                )
+            else:
+                error_box.empty()
+                st.session_state.mode = "result"
+                st.rerun()
+
+        st.markdown('</div>', unsafe_allow_html=True)
 
     # ======================
     # PAGE 3: RESULT
     # ======================
     elif mode == "result":
-        st.subheader("Diagnosis Result")
+        st.markdown(
+            '<h3 class="result-title">Diagnosis Result</h3>',
+            unsafe_allow_html=True
+        )
+
+        st.markdown(
+            '<div class="result-divider"></div>',
+            unsafe_allow_html=True
+        )
         env.reset()
         kb.load_all()
 
@@ -1412,18 +1605,21 @@ def active_expert_system():
                 "- Multiple minor issues\n\n"
             )
 
-        if st.button("⬅ Back"):
-            st.session_state.mode = "symptom"
-            st.rerun()
+        rcol1, _, rcol2 = st.columns([1, 4, 1])
 
-        if st.button("Home"):
-            st.session_state.mode = "menu"
+        with rcol1:
+            if st.button("⬅ Back"):
+                st.session_state.mode = "symptom"
+                st.rerun()
 
-            if "answers" in st.session_state:
-                del st.session_state.answers
+        with rcol2:
+            if st.button("Home"):
+                st.session_state.mode = "menu"
+                st.session_state.pop("answers", None)
+                st.session_state.pop("choice", None)
+                st.rerun()
+        
+        st.markdown('</div>', unsafe_allow_html=True)
 
-            if "choice" in st.session_state:
-                del st.session_state.choice
-            st.rerun()
 
 active_expert_system()
