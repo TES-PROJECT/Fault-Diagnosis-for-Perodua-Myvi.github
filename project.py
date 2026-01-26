@@ -1141,13 +1141,15 @@ def active_expert_system():
     mode = st.session_state.mode
     kb = knowledge_bass()
 
+
+
     # ======================
     #PAGE 1: MENU
     # ======================
     if mode == "menu":
-        st.text("=========================================")
-        st.text("Welcome To Vehicle Diagnostics Expert System")
-        st.text("=========================================")
+        st.write("=========================================")
+        st.title("Welcome To Vehicle Diagnostics Expert System")
+        st.write("=========================================")
         st.text("What kind of the Vehicle Fault Points ( Enter the number [1-11])")
         st.text("1. Electrical Problem")
         st.text("2. Engine & Fuel")
@@ -1176,6 +1178,9 @@ def active_expert_system():
     #PAGE 2: SYMPTOMS
     # ======================
     elif mode == "symptom":
+        if "answers" not in st.session_state:
+            st.session_state.answers = {}
+
         choice = st.session_state.choice
 
         match choice:
@@ -1213,6 +1218,7 @@ def active_expert_system():
                 kb.load_all()
                 category = ""
 
+
         if category == "":
             symptoms = [s for v in symptoms_by_category.values() for s in v]
             questions = [q for v in questions_by_category.values() for q in v]
@@ -1221,21 +1227,28 @@ def active_expert_system():
             questions = questions_by_category[category]
 
         st.subheader("Symptom Checklist")
-        answers = {}
 
         for symptom_name, question in zip(symptoms, questions):
             col_q, col_ans = st.columns([6, 2])
             with col_q:
                 st.write(question)
             with col_ans:
-                answers[symptom_name] = st.radio(
-                label="Answer",
-                options=["YES", "NO"],
-                index=None, 
-                horizontal=True,
-                key=f"sym_{symptom_name}",
-                label_visibility="collapsed"
+                prev = st.session_state.answers.get(symptom_name)
+
+                choice = st.radio(
+                    label="Answer",
+                    options=["YES", "NO"],
+                    index=(
+                        0 if prev == "YES"
+                        else 1 if prev == "NO"
+                        else None
+                    ),
+                    horizontal=True,
+                    key=f"sym_{symptom_name}",
+                    label_visibility="collapsed"
                 )
+
+                st.session_state.answers[symptom_name] = choice
 
         col1, col2 = st.columns(2)
 
@@ -1246,10 +1259,9 @@ def active_expert_system():
 
         with col2:
             if st.button("Submit"):
-                if any(v is None for v in answers.values()):
+                if any(v is None for v in st.session_state.answers.values()):
                     st.error("Please answer ALL symptom questions before continuing.")
                 else:
-                    st.session_state.answers = answers
                     st.session_state.mode = "result"
                     st.rerun()
 
@@ -1261,6 +1273,7 @@ def active_expert_system():
 
         env.reset()
         kb.load_all()
+
 
         for symptom_name, ans in st.session_state.answers.items():
             if ans == "YES":
@@ -1275,9 +1288,16 @@ def active_expert_system():
             st.session_state.mode = "symptom"
             st.rerun()
 
+        if st.button("🏠 Home"):
+            st.session_state.mode = "menu"
 
+            if "answers" in st.session_state:
+                del st.session_state.answers
 
-st.title("Vehicle Diagnostics Expert System")
+            if "choice" in st.session_state:
+                del st.session_state.choice
+
+            st.rerun()
+
 active_expert_system()
-
 
