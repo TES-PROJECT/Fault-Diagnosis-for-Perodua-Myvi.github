@@ -5,7 +5,7 @@ import logging
 if "mode" not in st.session_state:
     st.session_state.mode = "menu"
 
-# Setup working environment
+#setup working environment
 logging.basicConfig(level=logging.INFO,format='%(message)s')
 env = clips.Environment()
 router = clips.LoggingRouter()
@@ -24,9 +24,7 @@ env.build("""
 (deftemplate response
     (slot diagnosis)
     (slot potential_reason)
-    (slot recommendation)
-)
-
+    (slot recommendation))
 """)
 
 env.build("""
@@ -34,13 +32,102 @@ env.build("""
     (slot diagnosis)
     (slot title)
     (slot order)
-    (multislot steps)
-)
+    (multislot steps))
 """)
 
+env.build("""
+(deftemplate symptom-question
+   (slot category)
+   (slot name)
+   (slot sentence))
+""")
 
 class knowledge_bass:
     def electrical_kb(self):
+        env.build("""
+        (deffacts electrical-questions
+        
+           (symptom-question
+              (category electrical)
+              (name myvi-push-start-no-sound)
+              (sentence "Does the Myvi push start button make no sound when you press it?")
+           )
+        
+           (symptom-question
+              (category electrical)
+              (name instrument-panel-dim)
+              (sentence "Does the instrument panel appear dim or darker than usual?")
+           )
+        
+           (symptom-question
+              (category electrical)
+              (name battery-over-18-months)
+              (sentence "Is the car battery older than 18 months?")
+           )
+        
+           (symptom-question
+              (category electrical)
+              (name single-click-from-starter)
+              (sentence "Do you hear a single clicking sound when trying to start the car?")
+           )
+        
+           (symptom-question
+              (category electrical)
+              (name battery-light-on-myvi-dash)
+              (sentence "Is the battery warning light turned on on the Myvi dashboard?")
+           )
+           (symptom-question
+               (category electrical)
+               (name headlights-dim-at-idle)
+               (sentence "Do the headlights become dim when the engine is idling?")
+            )
+            
+            (symptom-question
+               (category electrical)
+               (name electric-power-steering-heavy)
+               (sentence "Does the electric power steering feel heavy when turning?")
+            )
+            
+            (symptom-question
+               (category electrical)
+               (name myvi-click-but-no-crank)
+               (sentence "Do you hear a click sound but the engine does not crank?")
+            )
+            
+            (symptom-question
+               (category electrical)
+               (name myvi-gear-in-p-position)
+               (sentence "Is the gear lever currently in the P (Park) position?")
+            )
+            
+            (symptom-question
+               (category electrical)
+               (name myvi-brake-pedal-pressed)
+               (sentence "Are you pressing the brake pedal while trying to start the car?")
+            )
+            
+            (symptom-question
+               (category electrical)
+               (name myvi-electrical-item-dead)
+               (sentence "Are most electrical items not working?")
+            )
+            
+            (symptom-question
+               (category electrical)
+               (name myvi-recently-added-gadget)
+               (sentence "Have you recently installed any new electrical gadgets?")
+            )
+            
+            (symptom-question
+               (category electrical)
+               (name myvi-other-things-work)
+               (sentence "Do some electrical components still work normally?")
+            )
+
+        
+        )
+        """)
+
         #1.Myvi Battery Issue
         env.build("""
         (defrule diagnose-myvi-battery
@@ -56,7 +143,7 @@ class knowledge_bass:
                 (potential_reason
                     "Battery cannot hold charge due to sulfation or aging; Possible parasitic drain or faulty charging system")
             ))
-
+        
             (assert (solution
                 (diagnosis "Myvi battery weak")
                 (order 1)
@@ -71,7 +158,7 @@ class knowledge_bass:
                     "Remove cables in reverse order"
                 )
             ))
-
+        
             (assert (solution
                 (diagnosis "Myvi battery weak")
                 (order 2)
@@ -85,7 +172,7 @@ class knowledge_bass:
                     "Reconnect positive then negative terminal"
                 )
             ))
-
+        
             (assert (solution
                 (diagnosis "Myvi battery weak")
                 (order 3)
@@ -111,7 +198,7 @@ class knowledge_bass:
                 (diagnosis "Myvi alternator not charging")
                 (potential_reason "Alternator cannot supply proper charging current; wiring or belt issue")
             ))
-
+        
             (assert (solution
                 (diagnosis "Myvi alternator not charging")
                 (order 1)
@@ -122,7 +209,7 @@ class knowledge_bass:
                     "Check for corrosion"
                 )
             ))
-
+        
             (assert (solution
                 (diagnosis "Myvi alternator not charging")
                 (order 2)
@@ -148,7 +235,7 @@ class knowledge_bass:
                 (diagnosis "Myvi starter motor fault")
                 (potential_reason "Starter motor cannot engage or crank engine; possible worn brushes or faulty solenoid")
             ))
-
+        
             (assert (solution
                 (diagnosis "Myvi starter motor fault")
                 (order 1)
@@ -159,7 +246,7 @@ class knowledge_bass:
                     "Listen for clicking or grinding"
                 )
             ))
-
+        
             (assert (solution
                 (diagnosis "Myvi starter motor fault")
                 (order 2)
@@ -185,7 +272,7 @@ class knowledge_bass:
                 (diagnosis "Myvi fuse blown")
                 (potential_reason "Blown fuse cuts power to electrical device")
             ))
-
+        
             (assert (solution
                 (diagnosis "Myvi fuse blown")
                 (order 1)
@@ -198,7 +285,86 @@ class knowledge_bass:
             ))
         )
         """)
+
     def engine_kb(self):
+        env.build("""
+        (deffacts engine-questions
+        
+           (symptom-question
+              (category engine)
+              (name myvi-engine-shakes-rainy-day)
+              (sentence "Does the engine shake more than usual on rainy days?")
+           )
+        
+           (symptom-question
+              (category engine)
+              (name myvi-check-engine-light)
+              (sentence "Is the check engine light currently turned on?")
+           )
+        
+           (symptom-question
+              (category engine)
+              (name myvi-loss-power-aircon-on)
+              (sentence "Does the car lose power when the air conditioner is turned on?")
+           )
+        
+           (symptom-question
+              (category engine)
+              (name myvi-cranks-no-start-hot-day)
+              (sentence "Does the engine crank but fail to start on a hot day?")
+           )
+        
+           (symptom-question
+              (category engine)
+              (name myvi-fuel-gauge-above-quarter)
+              (sentence "Is the fuel gauge showing more than a quarter tank?")
+           )
+        
+           (symptom-question
+              (category engine)
+              (name myvi-stalls-traffic-jam)
+              (sentence "Does the engine stall when driving in heavy traffic?")
+           )
+        
+           (symptom-question
+              (category engine)
+              (name myvi-hesitation-acceleration)
+              (sentence "Does the car hesitate when you press the accelerator?")
+           )
+        
+           (symptom-question
+              (category engine)
+              (name myvi-rough-idle-traffic)
+              (sentence "Does the engine idle roughly when stuck in traffic?")
+           )
+        
+           (symptom-question
+              (category engine)
+              (name myvi-never-changed-fuel-pump)
+              (sentence "Have you never changed the fuel pump before?")
+           )
+        
+           (symptom-question
+              (category engine)
+              (name myvi-sluggish-pickup)
+              (sentence "Does the car feel sluggish when accelerating?")
+           )
+        
+           (symptom-question
+              (category engine)
+              (name myvi-high-fuel-consumption)
+              (sentence "Is the fuel consumption higher than normal?")
+           )
+        
+           (symptom-question
+              (category engine)
+              (name myvi-air-filter-box-dirty)
+              (sentence "Is the air filter box dirty or clogged?")
+           )
+        
+        )
+        """)
+
         #4.Myvi Ignition Coil Issue
         env.build("""
         (defrule diagnose-myvi-ignition
@@ -210,7 +376,7 @@ class knowledge_bass:
                 (diagnosis "Myvi ignition coil common failure")
                 (potential_reason "Ignition coil weak or failing; causes misfire or power loss")
             ))
-
+        
             (assert (solution
                 (diagnosis "Myvi ignition coil common failure")
                 (order 1)
@@ -234,7 +400,7 @@ class knowledge_bass:
                 (diagnosis "Myvi fuel pump overheating")
                 (potential_reason "Fuel pump overheats and fails temporarily; common in high temperatures")
             ))
-
+        
             (assert (solution
                 (diagnosis "Myvi fuel pump overheating")
                 (order 1)
@@ -258,7 +424,7 @@ class knowledge_bass:
                 (diagnosis "Myvi fuel filter likely clogged")
                 (potential_reason "Fuel filter may be clogged, reducing fuel flow")
             ))
-
+        
             (assert (solution
                 (diagnosis "Myvi fuel filter likely clogged")
                 (order 1)
@@ -284,7 +450,7 @@ class knowledge_bass:
                 (diagnosis "Myvi air filter dirty")
                 (potential_reason "Dirty air filter reduces airflow; affects performance")
             ))
-
+        
             (assert (solution
                 (diagnosis "Myvi air filter dirty")
                 (order 1)
@@ -298,8 +464,40 @@ class knowledge_bass:
         )
         """)
 
-
     def cooling_kb(self):
+        env.build("""
+        (deffacts cooling-questions
+        
+           (symptom-question (category cooling) (name myvi-temp-gauge-in-red)
+              (sentence "Does the temperature gauge rise into the red zone?"))
+        
+           (symptom-question (category cooling) (name myvi-aircon-stops-when-hot)
+              (sentence "Does the air conditioner stop working when the engine gets hot?"))
+        
+           (symptom-question (category cooling) (name myvi-coolant-reservoir-low)
+              (sentence "Is the coolant level in the reservoir low?"))
+        
+           (symptom-question (category cooling) (name myvi-overheat-traffic-only)
+              (sentence "Does the car overheat only when driving in traffic jams?"))
+        
+           (symptom-question (category cooling) (name myvi-fan-not-spinning)
+              (sentence "Is the radiator fan not spinning when the engine is hot?"))
+        
+           (symptom-question (category cooling) (name myvi-normal-on-highway)
+              (sentence "Does the car operate at normal temperature on the highway?"))
+        
+           (symptom-question (category cooling) (name myvi-temp-never-reaches-middle)
+              (sentence "Does the engine temperature never reach the normal middle level?"))
+        
+           (symptom-question (category cooling) (name myvi-heater-not-hot-enough)
+              (sentence "Is the heater not producing enough hot air?"))
+        
+           (symptom-question (category cooling) (name myvi-poor-fuel-economy)
+              (sentence "Is the fuel economy worse than usual?"))
+        
+        )
+        """)
+
         #7.Myvi Engine Overheating
         env.build("""
         (defrule diagnose-myvi-overheat
@@ -311,7 +509,7 @@ class knowledge_bass:
                 (diagnosis "Myvi engine overheating common")
                 (potential_reason "Small radiator or low coolant; engine may overheat easily")
             ))
-
+        
             (assert (solution
                 (diagnosis "Myvi engine overheating common")
                 (order 1)
@@ -324,7 +522,7 @@ class knowledge_bass:
             ))
         )
         """)
-
+        
         #8.Myvi Cooling Fan Issue
         env.build("""
         (defrule diagnose-myvi-cooling-fan
@@ -336,7 +534,7 @@ class knowledge_bass:
                 (diagnosis "Myvi cooling fan motor faulty")
                 (potential_reason "Cooling fan motor not working; relay or fuse may be faulty")
             ))
-
+        
             (assert (solution
                 (diagnosis "Myvi cooling fan motor faulty")
                 (order 1)
@@ -349,7 +547,7 @@ class knowledge_bass:
             ))
         )
         """)
-
+        
         #9.Myvi Thermostat Issue
         env.build("""
         (defrule diagnose-myvi-thermostat
@@ -361,7 +559,7 @@ class knowledge_bass:
                 (diagnosis "Myvi thermostat stuck open")
                 (potential_reason "Thermostat stuck open; engine does not reach optimal temperature")
             ))
-
+        
             (assert (solution
                 (diagnosis "Myvi thermostat stuck open")
                 (order 1)
@@ -375,6 +573,30 @@ class knowledge_bass:
         """)
 
     def brake_kb(self):
+        env.build("""
+        (deffacts brake-questions
+        
+           (symptom-question (category brake) (name myvi-brake-pedal-soft)
+              (sentence "Does the brake pedal feel soft or spongy when pressed?"))
+        
+           (symptom-question (category brake) (name myvi-brake-warning-light)
+              (sentence "Is the brake warning light illuminated on the dashboard?"))
+        
+           (symptom-question (category brake) (name myvi-shift-lock-problem)
+              (sentence "Do you have difficulty shifting out of Park due to a shift lock issue?"))
+        
+           (symptom-question (category brake) (name myvi-squealing-front-brakes)
+              (sentence "Do you hear a squealing sound from the front brakes?"))
+        
+           (symptom-question (category brake) (name myvi-brake-dust-front-wheels)
+              (sentence "Is there excessive brake dust on the front wheels?"))
+        
+           (symptom-question (category brake) (name myvi-vibration-when-braking)
+              (sentence "Do you feel vibration when braking?"))
+        
+        )
+        """)
+
         #10.Myvi Brake Fluid Issue
         env.build("""
         (defrule diagnose-myvi-brake-fluid
@@ -386,7 +608,7 @@ class knowledge_bass:
                 (diagnosis "Myvi brake fluid low")
                 (potential_reason "Brake fluid level low; may affect braking performance")
             ))
-
+        
             (assert (solution
                 (diagnosis "Myvi brake fluid low")
                 (order 1)
@@ -414,7 +636,7 @@ class knowledge_bass:
                 (diagnosis "Myvi front brake pads worn")
                 (potential_reason "Brake pads worn; may affect braking performance")
             ))
-
+        
             (assert (solution
                 (diagnosis "Myvi front brake pads worn")
                 (order 1)
@@ -424,7 +646,7 @@ class knowledge_bass:
                     "Look for wear indicator or thickness less than 3mm"
                 )
             ))
-
+        
             (assert (solution
                 (diagnosis "Myvi front brake pads worn")
                 (order 2)
@@ -437,8 +659,52 @@ class knowledge_bass:
         )
         """)
 
-
     def tires_kb(self):
+        env.build("""
+        (deffacts tire-questions
+        
+           (symptom-question (category tires_wheels) (name myvi-tpms-warning-light)
+              (sentence "Is the TPMS (tire pressure) warning light on?"))
+        
+           (symptom-question (category tires_wheels) (name myvi-pulling-one-side)
+              (sentence "Does the car pull to one side while driving?"))
+        
+           (symptom-question (category tires_wheels) (name myvi-tire-looks-flat)
+              (sentence "Does one of the tires look flat?"))
+        
+           (symptom-question (category tires_wheels) (name myvi-loud-pop-sound)
+              (sentence "Did you hear a loud popping sound while driving?"))
+        
+           (symptom-question (category tires_wheels) (name myvi-steering-pulls-hard)
+              (sentence "Does the steering pull strongly to one side?"))
+        
+           (symptom-question (category tires_wheels) (name myvi-tire-completely-flat)
+              (sentence "Is one of the tires completely flat?"))
+        
+           (symptom-question (category tires_wheels) (name myvi-shaking-steering-wheel)
+              (sentence "Does the steering wheel shake while driving?"))
+        
+           (symptom-question (category tires_wheels) (name myvi-worse-at-100-110kmh)
+              (sentence "Is the shaking worse at speeds between 100–110 km/h?"))
+        
+           (symptom-question (category tires_wheels) (name myvi-front-tires-worn)
+              (sentence "Are the front tires visibly worn?"))
+        
+           (symptom-question (category tires_wheels) (name myvi-hit-pothole-recently)
+              (sentence "Have you hit a pothole recently?"))
+        
+           (symptom-question (category tires_wheels) (name myvi-humming-noise-wheels)
+              (sentence "Do you hear a humming noise from the wheels?"))
+        
+           (symptom-question (category tires_wheels) (name myvi-noise-increases-speed)
+              (sentence "Does the noise increase as the car speed increases?"))
+        
+           (symptom-question (category tires_wheels) (name myvi-noise-worse-certain-corners)
+              (sentence "Is the noise worse when turning in certain corners?"))
+        
+        )
+        """)
+
         #12.Myvi Tire Issue
         env.build("""
         (defrule diagnose-myvi-tire-pressure-or
@@ -452,7 +718,7 @@ class knowledge_bass:
                 (diagnosis "Myvi tire underinflated")
                 (potential_reason "Tire pressure low; may cause uneven wear and poor handling")
             ))
-
+        
             (assert (solution
                 (diagnosis "Myvi tire underinflated")
                 (order 1)
@@ -464,7 +730,7 @@ class knowledge_bass:
             ))
         )
         """)
-
+        
         #13.Myvi Tire Blowout
         env.build("""
         (defrule diagnose-myvi-tire-blowout-or
@@ -478,7 +744,7 @@ class knowledge_bass:
                 (diagnosis "Myvi tire blowout")
                 (potential_reason "Tire ruptured; car may pull to one side")
             ))
-
+        
             (assert (solution
                 (diagnosis "Myvi tire blowout")
                 (order 1)
@@ -489,7 +755,7 @@ class knowledge_bass:
                     "Replace blown tire with spare"
                 )
             ))
-
+        
             (assert (solution
                 (diagnosis "Myvi tire blowout")
                 (order 2)
@@ -501,7 +767,7 @@ class knowledge_bass:
             ))
         )
         """)
-
+        
         #14.Myvi Steering Wheel Shake
         env.build("""
         (defrule diagnose-myvi-steering-vibration-or
@@ -516,7 +782,7 @@ class knowledge_bass:
                 (diagnosis "Myvi wheel imbalance")
                 (potential_reason "Wheel imbalance or uneven tire wear; vibration at certain speeds")
             ))
-
+        
             (assert (solution
                 (diagnosis "Myvi wheel imbalance")
                 (order 1)
@@ -529,7 +795,7 @@ class knowledge_bass:
             ))
         )
         """)
-
+    
         #26.Myvi Wheel Bearing Issue
         env.build("""
         (defrule diagnose-myvi-wheel-bearing-and
@@ -541,7 +807,7 @@ class knowledge_bass:
                 (diagnosis "Myvi wheel bearing failure")
                 (potential_reason "Front wheel bearings worn; noise increases with speed")
             ))
-
+        
             (assert (solution
                 (diagnosis "Myvi wheel bearing failure")
                 (order 1)
@@ -551,7 +817,7 @@ class knowledge_bass:
                     "Spin wheels and listen for humming or roughness"
                 )
             ))
-
+        
             (assert (solution
                 (diagnosis "Myvi wheel bearing failure")
                 (order 2)
@@ -565,6 +831,30 @@ class knowledge_bass:
         """)
 
     def transmission_kb(self):
+        env.build("""
+        (deffacts transmission-questions
+        
+           (symptom-question (category transmission) (name myvi-rough-1-2-shift)
+              (sentence "Does the car shift roughly from first to second gear?"))
+        
+           (symptom-question (category transmission) (name myvi-delay-shift-p-to-d)
+              (sentence "Is there a noticeable delay when shifting from Park to Drive?"))
+        
+           (symptom-question (category transmission) (name myvi-atf-dark-burnt)
+              (sentence "Does the transmission fluid appear dark or burnt?"))
+        
+           (symptom-question (category transmission) (name myvi-high-revs-low-speed)
+              (sentence "Does the engine rev high but the car moves slowly?"))
+        
+           (symptom-question (category transmission) (name myvi-whining-cvt-noise)
+              (sentence "Do you hear a whining noise from the CVT transmission?"))
+        
+           (symptom-question (category transmission) (name myvi-shudder-low-speed)
+              (sentence "Does the car shudder when moving at low speed?"))
+        
+        )
+        """)
+
         #15.Myvi 4AT Transmission Issue
         env.build("""
         (defrule diagnose-myvi-4at-or
@@ -618,6 +908,39 @@ class knowledge_bass:
         """)
 
     def ac_kb(self):
+        env.build("""
+        (deffacts aircon-questions
+        
+           (symptom-question (category aircon) (name myvi-ac-warm-idle)
+              (sentence "Does the air conditioner blow warm air when the car is idling?"))
+        
+           (symptom-question (category aircon) (name myvi-compressor-not-running)
+              (sentence "Is the air conditioner compressor not running?"))
+        
+           (symptom-question (category aircon) (name myvi-ac-cold-only-when-moving)
+              (sentence "Does the air conditioner only blow cold air when the car is moving?"))
+        
+           (symptom-question (category aircon) (name myvi-loud-ac-compressor)
+              (sentence "Is the air conditioner compressor unusually loud?"))
+        
+           (symptom-question (category aircon) (name myvi-ac-not-cold-at-all)
+              (sentence "Is the air conditioner not cold at all?"))
+        
+           (symptom-question (category aircon) (name myvi-burning-smell-ac)
+              (sentence "Do you notice a burning smell when the air conditioner is on?"))
+        
+           (symptom-question (category aircon) (name myvi-water-passenger-footwell)
+              (sentence "Is there water leaking into the passenger footwell?"))
+        
+           (symptom-question (category aircon) (name myvi-musty-smell-interior)
+              (sentence "Is there a musty or moldy smell inside the car?"))
+        
+           (symptom-question (category aircon) (name myvi-wet-passenger-carpet)
+              (sentence "Is the passenger-side carpet wet?"))
+        
+        )
+        """)
+
         #20.Myvi AC Not Cooling
         env.build("""
         (defrule diagnose-myvi-aircon-or
@@ -644,7 +967,6 @@ class knowledge_bass:
             ))
         )
         """)
-
 
         #21.Myvi AC Compressor Issue
         env.build("""
@@ -705,6 +1027,30 @@ class knowledge_bass:
         """)
 
     def body_kb(self):
+        env.build("""
+        (deffacts body-questions
+        
+           (symptom-question (category body) (name myvi-exhaust-louder)
+              (sentence "Is the exhaust sound louder than usual?"))
+        
+           (symptom-question (category body) (name myvi-rust-middle-exhaust)
+              (sentence "Is there visible rust in the middle section of the exhaust?"))
+        
+           (symptom-question (category body) (name myvi-car-over-3-years)
+              (sentence "Is the car more than three years old?"))
+        
+           (symptom-question (category body) (name myvi-headlights-yellow-cloudy)
+              (sentence "Are the headlights yellowed or cloudy?"))
+        
+           (symptom-question (category body) (name myvi-poor-night-vision)
+              (sentence "Is your night-time visibility poor?"))
+        
+           (symptom-question (category body) (name myvi-parked-outside-always)
+              (sentence "Is the car usually parked outdoors?"))
+        
+        )
+        """)
+
         #17.Myvi Exhaust Rust
         env.build("""
         (defrule diagnose-myvi-exhaust-or
@@ -732,10 +1078,6 @@ class knowledge_bass:
         )
         """)
 
-
-
-
-
         #23.Myvi Head light Yellowing
         env.build("""
         (defrule diagnose-myvi-headlight-and
@@ -761,6 +1103,21 @@ class knowledge_bass:
         """)
 
     def suspension_kb(self):
+        env.build("""
+        (deffacts suspension-questions
+        
+           (symptom-question (category suspension) (name myvi-bouncy-ride)
+              (sentence "Does the car feel bouncy while driving?"))
+        
+           (symptom-question (category suspension) (name myvi-clunking-front-suspension)
+              (sentence "Do you hear clunking noises from the front suspension?"))
+        
+           (symptom-question (category suspension) (name myvi-nose-dives-when-braking)
+              (sentence "Does the front of the car dive down when braking?"))
+        
+        )
+        """)
+
         #25.Myvi Suspension Issue
         env.build("""
         (defrule diagnose-myvi-suspension-and
@@ -796,6 +1153,21 @@ class knowledge_bass:
         """)
 
     def steering_kb(self):
+        env.build("""
+        (deffacts steering-questions
+        
+           (symptom-question (category steering) (name myvi-steering-heavy-sometimes)
+              (sentence "Does the steering sometimes feel heavy?"))
+        
+           (symptom-question (category steering) (name myvi-eps-warning-light)
+              (sentence "Is the EPS warning light turned on?"))
+        
+           (symptom-question (category steering) (name myvi-steering-not-smooth)
+              (sentence "Does the steering feel rough or not smooth?"))
+        
+        )
+        """)
+
         #27.Myvi Electric Power Steering Issue
         env.build("""
         (defrule diagnose-myvi-eps-and
@@ -829,6 +1201,7 @@ class knowledge_bass:
             ))
         )
         """)
+
     def load_all(self):
         self.electrical_kb()
         self.engine_kb()
@@ -842,247 +1215,22 @@ class knowledge_bass:
         self.steering_kb()
 
 
-
-
-
-
-#------------------------------
-#Interactive input function
-#------------------------------
-symptoms_by_category = {
-
-    "electrical": [
-        "myvi-push-start-no-sound",
-        "instrument-panel-dim",
-        "battery-over-18-months",
-        "single-click-from-starter",
-        "battery-light-on-myvi-dash",
-        "headlights-dim-at-idle",
-        "electric-power-steering-heavy",
-        "myvi-click-but-no-crank",
-        "myvi-gear-in-p-position",
-        "myvi-brake-pedal-pressed",
-        "myvi-electrical-item-dead",
-        "myvi-recently-added-gadget",
-        "myvi-other-things-work",
-    ],
-
-    "engine": [
-        "myvi-engine-shakes-rainy-day",
-        "myvi-check-engine-light",
-        "myvi-loss-power-aircon-on",
-        "myvi-cranks-no-start-hot-day",
-        "myvi-fuel-gauge-above-quarter",
-        "myvi-stalls-traffic-jam",
-        "myvi-hesitation-acceleration",
-        "myvi-rough-idle-traffic",
-        "myvi-never-changed-fuel-pump",
-        "myvi-sluggish-pickup",
-        "myvi-high-fuel-consumption",
-        "myvi-air-filter-box-dirty",
-    ],
-
-    "cooling": [
-        "myvi-temp-gauge-in-red",
-        "myvi-aircon-stops-when-hot",
-        "myvi-coolant-reservoir-low",
-        "myvi-overheat-traffic-only",
-        "myvi-fan-not-spinning",
-        "myvi-normal-on-highway",
-        "myvi-temp-never-reaches-middle",
-        "myvi-heater-not-hot-enough",
-        "myvi-poor-fuel-economy",
-    ],
-
-    "brake": [
-        "myvi-brake-pedal-soft",
-        "myvi-brake-warning-light",
-        "myvi-shift-lock-problem",
-        "myvi-squealing-front-brakes",
-        "myvi-brake-dust-front-wheels",
-        "myvi-vibration-when-braking",
-    ],
-
-    "tires_wheels": [
-        "myvi-tpms-warning-light",
-        "myvi-pulling-one-side",
-        "myvi-tire-looks-flat",
-        "myvi-loud-pop-sound",
-        "myvi-steering-pulls-hard",
-        "myvi-tire-completely-flat",
-        "myvi-shaking-steering-wheel",
-        "myvi-worse-at-100-110kmh",
-        "myvi-front-tires-worn",
-        "myvi-hit-pothole-recently",
-        "myvi-humming-noise-wheels",
-        "myvi-noise-increases-speed",
-        "myvi-noise-worse-certain-corners",
-    ],
-
-    "transmission": [
-        "myvi-rough-1-2-shift",
-        "myvi-delay-shift-p-to-d",
-        "myvi-atf-dark-burnt",
-        "myvi-high-revs-low-speed",
-        "myvi-whining-cvt-noise",
-        "myvi-shudder-low-speed",
-    ],
-
-    "aircon": [
-        "myvi-ac-warm-idle",
-        "myvi-compressor-not-running",
-        "myvi-ac-cold-only-when-moving",
-        "myvi-loud-ac-compressor",
-        "myvi-ac-not-cold-at-all",
-        "myvi-burning-smell-ac",
-        "myvi-water-passenger-footwell",
-        "myvi-musty-smell-interior",
-        "myvi-wet-passenger-carpet",
-    ],
-
-    "body": [
-        "myvi-exhaust-louder",
-        "myvi-rust-middle-exhaust",
-        "myvi-car-over-3-years",
-        "myvi-headlights-yellow-cloudy",
-        "myvi-poor-night-vision",
-        "myvi-parked-outside-always",
-    ],
-
-    "suspension": [
-        "myvi-bouncy-ride",
-        "myvi-clunking-front-suspension",
-        "myvi-nose-dives-when-braking",
-    ],
-
-    "steering": [
-        "myvi-steering-heavy-sometimes",
-        "myvi-eps-warning-light",
-        "myvi-steering-not-smooth",
-    ],
-}
-
-questions_by_category = {
-
-    "electrical": [
-        "Does the Myvi push start button make no sound when you press it?",
-        "Does the instrument panel appear dim or darker than usual?",
-        "Is the car battery older than 18 months?",
-        "Do you hear a single clicking sound when trying to start the car?",
-        "Is the battery warning light turned on on the Myvi dashboard?",
-        "Do the headlights become dim when the engine is idling?",
-        "Does the electric power steering feel heavy when turning?",
-        "Do you hear a click sound but the engine does not crank?",
-        "Is the gear lever currently in the P (Park) position?",
-        "Are you pressing the brake pedal while trying to start the car?",
-        "Are most electrical items (radio, windows, lights) not working?",
-        "Have you recently installed any new electrical gadgets or accessories?",
-        "Do some electrical components still work normally?",
-    ],
-
-    "engine": [
-        "Does the engine shake more than usual on rainy days?",
-        "Is the check engine light currently turned on?",
-        "Does the car lose power when the air conditioner is turned on?",
-        "Does the engine crank but fail to start on a hot day?",
-        "Is the fuel gauge showing more than a quarter tank?",
-        "Does the engine stall when driving in heavy traffic?",
-        "Does the car hesitate when you press the accelerator?",
-        "Does the engine idle roughly when stuck in traffic?",
-        "Have you never changed the fuel pump before?",
-        "Does the car feel sluggish when accelerating?",
-        "Is the fuel consumption higher than normal?",
-        "Is the air filter box dirty or clogged?",
-    ],
-
-    "cooling": [
-        "Does the temperature gauge rise into the red zone?",
-        "Does the air conditioner stop working when the engine gets hot?",
-        "Is the coolant level in the reservoir low?",
-        "Does the car overheat only when driving in traffic jams?",
-        "Is the radiator fan not spinning when the engine is hot?",
-        "Does the car operate at normal temperature when driving on the highway?",
-        "Does the engine temperature never reach the normal middle level?",
-        "Is the heater not producing enough hot air?",
-        "Is the fuel economy worse than usual?",
-    ],
-
-    "brake": [
-        "Does the brake pedal feel soft or spongy when pressed?",
-        "Is the brake warning light illuminated on the dashboard?",
-        "Do you have difficulty shifting out of Park due to a shift lock issue?",
-        "Do you hear a squealing sound from the front brakes?",
-        "Is there excessive brake dust on the front wheels?",
-        "Do you feel vibration when braking?",
-    ],
-
-    "tires_wheels": [
-        "Is the TPMS (tire pressure) warning light on?",
-        "Does the car pull to one side while driving?",
-        "Does one of the tires look flat?",
-        "Did you hear a loud popping sound while driving?",
-        "Does the steering pull strongly to one side?",
-        "Is one of the tires completely flat?",
-        "Does the steering wheel shake while driving?",
-        "Is the shaking worse at speeds between 100–110 km/h?",
-        "Are the front tires visibly worn?",
-        "Have you hit a pothole recently?",
-        "Do you hear a humming noise from the wheels?",
-        "Does the noise increase as the car speed increases?",
-        "Is the noise worse when turning in certain corners?",
-    ],
-
-    "transmission": [
-        "Does the car shift roughly from first to second gear?",
-        "Is there a noticeable delay when shifting from Park to Drive?",
-        "Does the transmission fluid appear dark or burnt?",
-        "Does the engine rev high but the car moves slowly?",
-        "Do you hear a whining noise from the CVT transmission?",
-        "Does the car shudder when moving at low speed?",
-    ],
-
-    "aircon": [
-        "Does the air conditioner blow warm air when the car is idling?",
-        "Is the air conditioner compressor not running?",
-        "Does the air conditioner only blow cold air when the car is moving?",
-        "Is the air conditioner compressor unusually loud?",
-        "Is the air conditioner not cold at all?",
-        "Do you notice a burning smell when the air conditioner is on?",
-        "Is there water leaking into the passenger footwell?",
-        "Is there a musty or moldy smell inside the car?",
-        "Is the passenger-side carpet wet?",
-    ],
-
-    "body": [
-        "Is the exhaust sound louder than usual?",
-        "Is there visible rust in the middle section of the exhaust?",
-        "Is the car more than three years old?",
-        "Are the headlights yellowed or cloudy?",
-        "Is your night-time visibility poor?",
-        "Is the car usually parked outdoors?",
-    ],
-
-    "suspension": [
-        "Does the car feel bouncy while driving?",
-        "Do you hear clunking noises from the front suspension?",
-        "Does the front of the car dive down when braking?",
-    ],
-
-    "steering": [
-        "Does the steering sometimes feel heavy?",
-        "Is the EPS warning light turned on?",
-        "Does the steering feel rough or not smooth?",
-    ],
-}
-
-
-
-
 #------------------------------
 #Output Diagnostics and Solutions
 #------------------------------
-
 kb = knowledge_bass()
+
+def ask_symptom(category):
+    questions = []
+
+    for fact in env.facts():
+        if fact.template.name == "symptom-question":
+            if category == "" or fact["category"] == category:
+                questions.append(
+                    (fact["name"], fact["sentence"])
+                )
+
+    return questions
 
 def run_inference():
     for fact in env.facts():
@@ -1116,32 +1264,8 @@ def run_inference():
                     for i, step in enumerate(sol["steps"], 1):
                         st.write(f"{i}. {step}")
 
-def ask_symptom(name):
-    while True:
-        ans = input(f"{name} [yes/no] or [y/n]: ").strip().lower()
-        if ans in ('y', 'n'):
-            return ans
-        if ans in ('yes' , 'no'):
-            if ans == 'yes':
-                return 'y'
-            else:
-                return 'n'
-        print("Please enter 'yes' or 'no'.")
-
-def check_number():
-    while True:
-        number = input("\nPlease Enter Your Choice : ").strip()
-        if number.isdigit() and 1 <= int(number) <=11:
-            return int(number)
-        else:
-            print("Invalid input. Please enter a number between 1 and 11.")
-
-
 def active_expert_system():
     mode = st.session_state.mode
-    kb = knowledge_bass()
-
-
 
     # ======================
     #PAGE 1: MENU
@@ -1177,10 +1301,12 @@ def active_expert_system():
     # ======================
     #PAGE 2: SYMPTOMS
     # ======================
+    
     elif mode == "symptom":
         if "answers" not in st.session_state:
             st.session_state.answers = {}
 
+        env.reset()
         choice = st.session_state.choice
 
         match choice:
@@ -1218,37 +1344,26 @@ def active_expert_system():
                 kb.load_all()
                 category = ""
 
-
-        if category == "":
-            symptoms = [s for v in symptoms_by_category.values() for s in v]
-            questions = [q for v in questions_by_category.values() for q in v]
-        else:
-            symptoms = symptoms_by_category[category]
-            questions = questions_by_category[category]
-
+        env.reset()
+        questions = ask_symptom(category)
         st.subheader("Symptom Checklist")
 
-        for symptom_name, question in zip(symptoms, questions):
-            col_q, col_ans = st.columns([6, 2])
-            with col_q:
-                st.write(question)
-            with col_ans:
-                prev = st.session_state.answers.get(symptom_name)
+        for symptom_name, sentence in questions:
+            prev = st.session_state.answers.get(symptom_name)
 
-                choice = st.radio(
-                    label="Answer",
-                    options=["YES", "NO"],
-                    index=(
-                        0 if prev == "YES"
-                        else 1 if prev == "NO"
-                        else None
-                    ),
-                    horizontal=True,
-                    key=f"sym_{symptom_name}",
-                    label_visibility="collapsed"
-                )
+            choice = st.radio(
+                sentence,
+                ["YES", "NO"],
+                index=(
+                    0 if prev == "YES"
+                    else 1 if prev == "NO"
+                    else None
+                ),
+                key=f"sym_{symptom_name}",
+                horizontal=True
+            )
 
-                st.session_state.answers[symptom_name] = choice
+            st.session_state.answers[symptom_name] = choice
 
         col1, col2 = st.columns(2)
 
@@ -1270,25 +1385,37 @@ def active_expert_system():
     # ======================
     elif mode == "result":
         st.subheader("Diagnosis Result")
-
         env.reset()
         kb.load_all()
-
 
         for symptom_name, ans in st.session_state.answers.items():
             if ans == "YES":
                 env.assert_string(
-                    f"(symptom (name {symptom_name}) (value yes))"
-                )
+                    f"(symptom (name {symptom_name}) (value yes))")
 
         env.run()
-        run_inference()
+        has_response = any(
+                fact.template.name == "response"
+                for fact in env.facts()
+            )
 
-        if st.button("⬅ Back to Symptoms"):
+        if has_response:
+            run_inference()
+        else:
+            st.warning("No Diagnosis Found")
+            st.info(
+                "The selected symptoms do not satisfy any predefined diagnosis rules.\n\n"
+                "This may indicate:\n"
+                "- The condition is uncommon\n"
+                "- Insufficient or conflicting symptoms\n"
+                "- Multiple minor issues\n\n"
+            )
+
+        if st.button("⬅ Back"):
             st.session_state.mode = "symptom"
             st.rerun()
 
-        if st.button("🏠 Home"):
+        if st.button("Home"):
             st.session_state.mode = "menu"
 
             if "answers" in st.session_state:
@@ -1296,7 +1423,6 @@ def active_expert_system():
 
             if "choice" in st.session_state:
                 del st.session_state.choice
-
             st.rerun()
 
 active_expert_system()
