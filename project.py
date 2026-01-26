@@ -1348,11 +1348,11 @@ def active_expert_system():
         questions = ask_symptom(category)
         st.subheader("Symptom Checklist")
 
+        num = 1
         for symptom_name, sentence in questions:
             prev = st.session_state.answers.get(symptom_name)
-
             choice = st.radio(
-                sentence,
+                f"Q{num}. {sentence}",
                 ["YES", "NO"],
                 index=(
                     0 if prev == "YES"
@@ -1363,6 +1363,7 @@ def active_expert_system():
                 horizontal=True
             )
 
+            num = num + 1
             st.session_state.answers[symptom_name] = choice
 
         col1, col2 = st.columns(2)
