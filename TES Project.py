@@ -1219,7 +1219,7 @@ class knowledge_bass:
         self.steering_kb()
 
 # ==============================
-# UI-only question image
+# Question image
 # ==============================
 QUESTION_IMAGES = {
 
