@@ -1426,4 +1426,3 @@ def active_expert_system():
             st.rerun()
 
 active_expert_system()
-
