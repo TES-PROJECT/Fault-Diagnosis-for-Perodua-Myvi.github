@@ -2,11 +2,16 @@
 import streamlit as st
 import clips
 import logging
+import os
+
+#use to locate the project root directory for loading files such as images
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 #load the css file
 with open(".streamlit/main.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-#initialization（if first time coming,then set the has_started)
+#initialization(if first time coming,then set the has_started)
 if "has_started" not in st.session_state:
     st.session_state.has_started = False
 
@@ -57,13 +62,13 @@ class knowledge_bass:
         env.build("""
         (deffacts electrical-questions
         
-           (symptom-question
-              (category electrical)
-              (name myvi-push-start-no-sound)
-              (sentence "Does the Myvi push start button make no sound when you press it?")
-              (image "picture/myvi-push-start-no-sound.png"
-           )
-        
+            (symptom-question
+            (category electrical)
+            (name myvi-push-start-no-sound)
+            (sentence "Does the Myvi push start button make no sound when you press it?")
+            (image "picture/myvi-push-start-no-sound.png")
+            )
+
            (symptom-question
               (category electrical)
               (name instrument-panel-dim)
@@ -1240,42 +1245,54 @@ class knowledge_bass:
         self.suspension_kb()
         self.steering_kb()
 
-def render_question_picture(q_label, image_path):
+
+#q_label: text of the question to be displayed (like "Q1. ...")
+#images: list of image paths related to this question
+def question_image(q_label, images):
     st.markdown(
         f"<div class='question-text'>{q_label}</div>",
         unsafe_allow_html=True
     )
 
-    images_to_show = []
-    if image_path and str(image_path) != "nil":
-        if isinstance(image_path, (list, tuple)):
-            images_to_show.extend(image_path) # Add all images from tuple
-        else:
-            images_to_show.append(image_path) # Add single image
-
-    if images_to_show:
+    if images:
+        #section for reference images
         with st.expander("💡 What does this look like?"):
-            for img in images_to_show:
-                clean_path = str(img).replace('"', '')
-                st.image(clean_path, use_container_width=True)
+            #img: relative image path from the kb
+            for img in images:
+                img_path = os.path.join(BASE_DIR, img) #convert relative image path to absolute file path
+
+                if os.path.exists(img_path):
+                    st.image(img_path, use_container_width=True)
+                    #show the image in the webpage
+                else:
+                    st.error(f"Image not found: {img_path}")
+                    #error message if image file is missing
 
 
 #------------------------------
-#Output Diagnostics and Solutions
+#output diagnostics and solutions
 #------------------------------
 kb = knowledge_bass()
+
+#category: select fault category
 def ask_symptom(category):
-    questions = []
+    questions = [] #list to store symptom questions for the webpage
 
+    #loop through all CLIPS facts
     for fact in env.facts():
+        #select symptom-question facts only
         if fact.template.name == "symptom-question":
+            #filter questions by category
             if category == "" or fact["category"] == category:
-                img = fact.get("image", None)
+                images = fact["image"] if fact["image"] else [] #images: related image paths
                 questions.append(
-                    (fact["name"], fact["sentence"], img)
+                    (
+                        fact["name"], #symptom id
+                        fact["sentence"], #question text
+                        images #images for this question
+                    )
                 )
-
-    return questions
+    return questions #return filter questions
 
 def run_inference():
     diagnosis_index = 1
@@ -1478,11 +1495,11 @@ def active_expert_system():
         num = 1
         all_answered = True
 
-        for symptom_name, sentence, image_path in questions:
+        for symptom_name, sentence, images in questions:
             prev = st.session_state.answers.get(symptom_name)
-            render_question_picture(
+            question_image(
                 f"Q{num}. {sentence}",
-                image_path
+                images
             )
             choice = st.radio(
                 label="dummy",
