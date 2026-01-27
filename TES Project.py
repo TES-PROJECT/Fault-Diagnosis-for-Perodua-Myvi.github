@@ -43,7 +43,8 @@ env.build("""
 (deftemplate symptom-question
    (slot category)
    (slot name)
-   (slot sentence))
+   (slot sentence)
+   (multislot image))
 """)
 
 class knowledge_bass:
@@ -55,12 +56,14 @@ class knowledge_bass:
               (category electrical)
               (name myvi-push-start-no-sound)
               (sentence "Does the Myvi push start button make no sound when you press it?")
+              (image "picture/myvi-push-start-no-sound.png"
            )
         
            (symptom-question
               (category electrical)
               (name instrument-panel-dim)
               (sentence "Does the instrument panel appear dim or darker than usual?")
+              (image "picture/instrument-panel-dim.png")
            )
         
            (symptom-question
@@ -79,11 +82,14 @@ class knowledge_bass:
               (category electrical)
               (name battery-light-on-myvi-dash)
               (sentence "Is the battery warning light turned on on the Myvi dashboard?")
+              (image "picture/battery-light-on-myvi-dash.png")
            )
+
            (symptom-question
                (category electrical)
                (name headlights-dim-at-idle)
                (sentence "Do the headlights become dim when the engine is idling?")
+               (image "picture/headlights-dim-at-idle.png")
             )
             
             (symptom-question
@@ -102,12 +108,14 @@ class knowledge_bass:
                (category electrical)
                (name myvi-gear-in-p-position)
                (sentence "Is the gear lever currently in the P (Park) position?")
+               (image "picture/myvi-gear-in-p-position.png")
             )
             
             (symptom-question
                (category electrical)
                (name myvi-brake-pedal-pressed)
                (sentence "Are you pressing the brake pedal while trying to start the car?")
+               (image "picture/myvi-brake-pedal-pressed.png")
             )
             
             (symptom-question
@@ -127,8 +135,6 @@ class knowledge_bass:
                (name myvi-other-things-work)
                (sentence "Do some electrical components still work normally?")
             )
-
-        
         )
         """)
 
@@ -184,7 +190,7 @@ class knowledge_bass:
                 (steps
                     "Start engine"
                     "Measure battery voltage"
-                    "Normal range: 13.5V–14.5V"
+                    "Normal range: 13.5V-14.5V"
                     "Below 13V or above 15V indicates alternator fault"
                 )
             ))
@@ -221,7 +227,7 @@ class knowledge_bass:
                 (steps
                     "Start engine"
                     "Measure voltage at battery terminals"
-                    "Normal range: 13.5–14.5V"
+                    "Normal range: 13.5-14.5V"
                     "Replace alternator if output abnormal"
                 )
             ))
@@ -304,6 +310,7 @@ class knowledge_bass:
               (category engine)
               (name myvi-check-engine-light)
               (sentence "Is the check engine light currently turned on?")
+              (image "picture/myvi-check-engine-light.png")
            )
         
            (symptom-question
@@ -322,6 +329,7 @@ class knowledge_bass:
               (category engine)
               (name myvi-fuel-gauge-above-quarter)
               (sentence "Is the fuel gauge showing more than a quarter tank?")
+              (image "picture/myvi-fuel-gauge-above-quarter.png")
            )
         
            (symptom-question
@@ -364,6 +372,7 @@ class knowledge_bass:
               (category engine)
               (name myvi-air-filter-box-dirty)
               (sentence "Is the air filter box dirty or clogged?")
+              (image "picture/myvi-air-filter-box-dirty.png")
            )
         
         )
@@ -473,13 +482,16 @@ class knowledge_bass:
         (deffacts cooling-questions
         
            (symptom-question (category cooling) (name myvi-temp-gauge-in-red)
-              (sentence "Does the temperature gauge rise into the red zone?"))
+              (sentence "Does the temperature gauge rise into the red zone?")
+              (image "picture/myvi-temp-gauge-in-red.png"))
         
            (symptom-question (category cooling) (name myvi-aircon-stops-when-hot)
               (sentence "Does the air conditioner stop working when the engine gets hot?"))
         
            (symptom-question (category cooling) (name myvi-coolant-reservoir-low)
-              (sentence "Is the coolant level in the reservoir low?"))
+              (sentence "Is the coolant level in the reservoir low?")
+              (image "picture/myvi-coolant-reservoir-low-1.png" "picture/myvi-coolant-reservoir-low-2.png")
+              )
         
            (symptom-question (category cooling) (name myvi-overheat-traffic-only)
               (sentence "Does the car overheat only when driving in traffic jams?"))
@@ -488,10 +500,12 @@ class knowledge_bass:
               (sentence "Is the radiator fan not spinning when the engine is hot?"))
         
            (symptom-question (category cooling) (name myvi-normal-on-highway)
-              (sentence "Does the car operate at normal temperature on the highway?"))
+              (sentence "Does the car operate at normal temperature on the highway?")
+              (image "picture/engine-temperature.png"))
         
            (symptom-question (category cooling) (name myvi-temp-never-reaches-middle)
-              (sentence "Does the engine temperature never reach the normal middle level?"))
+              (sentence "Does the engine temperature never reach the normal middle level?")
+              (image "picture/engine-temperature.png"))
         
            (symptom-question (category cooling) (name myvi-heater-not-hot-enough)
               (sentence "Is the heater not producing enough hot air?"))
@@ -584,16 +598,19 @@ class knowledge_bass:
               (sentence "Does the brake pedal feel soft or spongy when pressed?"))
         
            (symptom-question (category brake) (name myvi-brake-warning-light)
-              (sentence "Is the brake warning light illuminated on the dashboard?"))
+              (sentence "Is the brake warning light illuminated on the dashboard?")
+              (image "picture/myvi-brake-warning-light.png"))
         
            (symptom-question (category brake) (name myvi-shift-lock-problem)
-              (sentence "Do you have difficulty shifting out of Park due to a shift lock issue?"))
+              (sentence "Do you have difficulty shifting out of Park due to a shift lock issue?")
+              (image "picture/myvi-shift-lock-problem.png"))
         
            (symptom-question (category brake) (name myvi-squealing-front-brakes)
               (sentence "Do you hear a squealing sound from the front brakes?"))
         
            (symptom-question (category brake) (name myvi-brake-dust-front-wheels)
-              (sentence "Is there excessive brake dust on the front wheels?"))
+              (sentence "Is there excessive brake dust on the front wheels?")
+              (image "picture/myvi-brake-dust-front-wheels.png"))
         
            (symptom-question (category brake) (name myvi-vibration-when-braking)
               (sentence "Do you feel vibration when braking?"))
@@ -1218,85 +1235,24 @@ class knowledge_bass:
         self.suspension_kb()
         self.steering_kb()
 
-# ==============================
-# Question image
-# ==============================
-QUESTION_IMAGES = {
-
-    # -------- Electrical --------
-    "instrument-panel-dim": {
-        "images": ["picture/2.png"]
-    },
-
-    "battery-light-on-myvi-dash": {
-        "images": ["picture/5.png"]
-    },
-
-    "headlights-dim-at-idle": {
-        "images": ["picture/6.png"]
-    },
-
-    "myvi-gear-in-p-position": {
-        "images": ["picture/9.png"]
-    },
-
-    "myvi-brake-pedal-pressed": {
-        "images": ["picture/10.png"]
-    },
-
-    # -------- Engine --------
-    "myvi-check-engine-light": {
-        "images": ["picture/15.png"]
-    },
-
-    "myvi-fuel-gauge-above-quarter": {
-        "images": ["picture/18.png"]
-    },
-
-    "myvi-air-filter-box-dirty": {
-        "images": ["picture/25.png"]
-    },
-
-    # -------- Cooling --------
-    "myvi-temp-gauge-in-red": {
-        "images": ["picture/26.png"]
-    },
-
-    "myvi-coolant-reservoir-low": {
-        "images": ["picture/28_1.png", "picture/28_2.png"]
-    },
-
-    "myvi-normal-on-highway": {
-        "images": ["picture/31.png"]
-    },
-
-    "myvi-temp-never-reaches-middle": {
-        "images": ["picture/31.png"] 
-    },
-
-    # -------- Brake --------
-    "myvi-brake-warning-light": {
-        "images": ["picture/36.png"]
-    },
-
-    "myvi-shift-lock-problem": {
-        "images": ["picture/37.png"]
-    },
-
-    "myvi-brake-dust-front-wheels": {
-        "images": ["picture/39.png"]
-    },
-}
-def render_question_with_hint(q_label, symptom_name):
+def render_question_with_hint(q_label, image_path):
     st.markdown(
         f"<div class='question-text'>{q_label}</div>",
         unsafe_allow_html=True
     )
 
-    if symptom_name in QUESTION_IMAGES:
+    images_to_show = []
+    if image_path and str(image_path) != "nil":
+        if isinstance(image_path, (list, tuple)):
+            images_to_show.extend(image_path) # Add all images from tuple
+        else:
+            images_to_show.append(image_path) # Add single image
+
+    if images_to_show:
         with st.expander("💡 What does this look like?"):
-            for img in QUESTION_IMAGES[symptom_name]["images"]:
-                st.image(img, use_container_width=True)
+            for img in images_to_show:
+                clean_path = str(img).replace('"', '')
+                st.image(clean_path, use_container_width=True)
 
 
 #------------------------------
@@ -1309,8 +1265,9 @@ def ask_symptom(category):
     for fact in env.facts():
         if fact.template.name == "symptom-question":
             if category == "" or fact["category"] == category:
+                img = fact.get("image", None)
                 questions.append(
-                    (fact["name"], fact["sentence"])
+                    (fact["name"], fact["sentence"], img)
                 )
 
     return questions
@@ -1516,11 +1473,11 @@ def active_expert_system():
         num = 1
         all_answered = True
 
-        for symptom_name, sentence in questions:
+        for symptom_name, sentence, image_path in questions:
             prev = st.session_state.answers.get(symptom_name)
             render_question_with_hint(
                 f"Q{num}. {sentence}",
-                symptom_name
+                image_path
             )
             choice = st.radio(
                 label="dummy",
