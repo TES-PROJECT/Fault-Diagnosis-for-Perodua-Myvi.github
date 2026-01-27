@@ -1,12 +1,17 @@
+#import necessary library
 import streamlit as st
 import clips
 import logging
+#load the css file
 with open(".streamlit/main.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+#initialization（if first time coming,then set the has_started)
 if "has_started" not in st.session_state:
     st.session_state.has_started = False
 
-if "mode" not in st.session_state:
+#Only display welcome when first come
+if "mode" not in st.session_state: #if first time come, direct to welcome page
     st.session_state.mode = "welcome"
     
 #setup working environment
