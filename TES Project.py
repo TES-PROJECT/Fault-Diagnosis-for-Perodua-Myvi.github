@@ -1235,7 +1235,7 @@ class knowledge_bass:
         self.suspension_kb()
         self.steering_kb()
 
-def render_question_with_hint(q_label, image_path):
+def render_question_picture(q_label, image_path):
     st.markdown(
         f"<div class='question-text'>{q_label}</div>",
         unsafe_allow_html=True
@@ -1475,7 +1475,7 @@ def active_expert_system():
 
         for symptom_name, sentence, image_path in questions:
             prev = st.session_state.answers.get(symptom_name)
-            render_question_with_hint(
+            render_question_picture(
                 f"Q{num}. {sentence}",
                 image_path
             )
