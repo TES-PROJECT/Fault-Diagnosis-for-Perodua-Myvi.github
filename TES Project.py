@@ -38,7 +38,7 @@ env.build("""
 (deftemplate response
     (slot diagnosis)
     (slot potential_reason)
-    (slot recommendation))
+    )
 """)
 
 env.build("""
@@ -1317,9 +1317,6 @@ def run_inference():
             unsafe_allow_html=True
         )#use to diaplay the diagnosis number ,disgnosis and the potential reason that also inside the clpis
 
-        if "recommendation" in fact and fact["recommendation"]:
-            print("\nRecommendation:")
-            print(fact["recommendation"])
 
         #Collect solutions for the corresponding diagnosis
         solutions = []
