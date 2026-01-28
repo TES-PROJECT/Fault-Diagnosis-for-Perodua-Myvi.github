@@ -1233,7 +1233,7 @@ class knowledge_bass:
         )
         """)
 
-    def load_all(self):
+    def load_all(self): #if user choice all , then load all
         self.electrical_kb()
         self.engine_kb()
         self.cooling_kb()
@@ -1323,41 +1323,41 @@ def run_inference():
 
         for s in env.facts():
             if s.template.name == "solution" and s["diagnosis"] == diagnosis:
-                solutions.append(s)
+                solutions.append(s) 
+        #one diagnosis might have multiple solution, insert them all save into "solution"
+        solutions.sort(key=lambda x: x["order"])#follow by the number
 
-        solutions.sort(key=lambda x: x["order"])
-
-        if solutions:
+        if solutions: #make sure solution is valid,not blank
             st.markdown(
                 '<div class="solution-block">', 
                 unsafe_allow_html=True
             )
-
+    
             st.markdown(
                 '<div class="diagnosis-section">Solution</div>', 
                 unsafe_allow_html=True
-            )
-
-            for sol in solutions:
-                with st.expander(sol["title"]):
-                    st.markdown("**Step:**")
+            )#show the title
+            
+            for sol in solutions:# this is an expander, prevent the whole message display
+                with st.expander(sol["title"]):#only display when user click it
+                    st.markdown("**Step:**")#showing the step that take from clips
                     for i, step in enumerate(sol["steps"], 1):
                         st.write(f"{i}. {step}")
             
         st.markdown(
             '<hr class="diagnosis-divider">', 
             unsafe_allow_html=True
-        )
+        )#make a segment
 
-        diagnosis_index += 1
+        diagnosis_index += 1 #next disgnosis, and repeat the loop
 
-def active_expert_system():
-    mode = st.session_state.mode
+def active_expert_system():#main system
+    mode = st.session_state.mode #if first time coming, above will let it = welcome. If not, go to the corresponding page
 
     # ======================
     #PAGE 1: MENU
     # ======================
-    if mode == "welcome":
+    if mode == "welcome": #first time, show the welcome page
         st.markdown(
             "<div class='page'>"
                 "<h2 class='welcome-hero'>Welcome to Fault Diagnosis for Perodua Myvi</h2>"
@@ -1369,32 +1369,32 @@ def active_expert_system():
                 "</p>"
             "</div>",
             unsafe_allow_html=True
-        )
+        )#some intro 
 
-        col1, col2, col3 = st.columns([2, 1, 2])
+        col1, col2, col3 = st.columns([2, 1, 2]) # make 3 column
 
-        with col2:
+        with col2:#only column 2/mid display the start button
             if st.button("Start"):
                 st.session_state.has_started = True
                 st.session_state.mode = "menu"
                 st.rerun()
 
-        return
+        return #once user press button start,mode will= menu, and rerun the page to direct to menu page
 
-    if mode == "menu":
+    if mode == "menu": #menu page
         st.markdown(
             '<h2 class="menu-title">Fault Diagnosis for Perodua Myvi</h2>',
             unsafe_allow_html=True
-        )
+        )#title
 
-        st.markdown('<div class="menu-divider"></div>', unsafe_allow_html=True)
+        st.markdown('<div class="menu-divider"></div>', unsafe_allow_html=True) #segment
 
         st.markdown(
             '<p class="menu-instruction">'
             'Select a fault category to begin the diagnosis process.'
             '</p>',
             unsafe_allow_html=True
-        )
+        )#some instruction
 
         st.markdown(
             """
@@ -1413,18 +1413,18 @@ def active_expert_system():
             </ul>
             """,
             unsafe_allow_html=True
-        )
+        )#using html to display all choice
 
         choice = st.selectbox(
             "Select a category (1–11):",
             list(range(1, 12)),
             key="menu_choice"
-        )
+        ) #let user choice the number that correspond to the choice
 
-        if st.button("➡ Continue"):
+        if st.button("➡ Continue"): #if press button continue, mode=symptom and let the choice = user choice
             st.session_state.choice = choice
             st.session_state.mode = "symptom"
-            st.rerun()
+            st.rerun() #rerun the page 
 
         st.markdown('</div>', unsafe_allow_html=True)
 
@@ -1432,14 +1432,14 @@ def active_expert_system():
     #PAGE 2: SYMPTOMS
     # ======================
     
-    elif mode == "symptom":
-        if "answers" not in st.session_state:
+    elif mode == "symptom":#after user choice the category
+        if "answers" not in st.session_state: #declare the "answer"
             st.session_state.answers = {}
 
-        env.reset()
-        choice = st.session_state.choice
+        env.reset() #reset the clips environment to prevent the previous facts affect
+        choice = st.session_state.choice #user choice
 
-        match choice:
+        match choice: #load the kb and category based on user choice
             case 1:
                 kb.electrical_kb()
                 category = "electrical"
@@ -1470,34 +1470,34 @@ def active_expert_system():
             case 10:
                 kb.steering_kb()
                 category = "steering"
-            case 11:
+            case 11: #if user not sure and choice all, load all
                 kb.load_all()
                 category = ""
 
-        env.reset()
-        questions = ask_symptom(category)
+        env.reset()#reset environment again for double confirm previous facts will not affect
+        questions = ask_symptom(category)#extract the question from kb
         error_box = st.empty()
 
         st.markdown(
             '<h3 class="symptom-title">Symptom Checklist</h3>',
             unsafe_allow_html=True
-        )
+        )#display title
 
         st.markdown(
             '<p class="symptom-instruction">'
             'Please answer the following questions based on your vehicle condition.'
             '</p>',
             unsafe_allow_html=True
-        )
-        num = 1
+        )#instruction
+        num = 1 #question number
         all_answered = True
 
-        for symptom_name, sentence, images in questions:
-            prev = st.session_state.answers.get(symptom_name)
+        for symptom_name, sentence, images in questions: #display all question
+            prev = st.session_state.answers.get(symptom_name) #if user back, display the previos choice
             question_image(
                 f"Q{num}. {sentence}",
                 images
-            )
+            )#display question and picture
             choice = st.radio(
                 label="dummy",
                 options=["YES", "NO"],
@@ -1509,69 +1509,69 @@ def active_expert_system():
                 key=f"sym_{symptom_name}",
                 horizontal=True,
                 label_visibility="collapsed"
-            )
+            )# provide yes or no to choose, if previous have choose, then display previous one
             st.markdown("<div class='radio-tight'></div>", unsafe_allow_html=True)
 
-            if choice is None:
+            if choice is None:#make sure all the question choose yes or no. If have question haven fill in, all answer set to false
                 all_answered = False
 
-            num = num + 1
-            st.session_state.answers[symptom_name] = choice
+            num = num + 1 #next question
+            st.session_state.answers[symptom_name] = choice #save the user answer 
         error_box = st.empty()
-        col1, _, col2 = st.columns([1, 4, 1])
+        col1, _, col2 = st.columns([1, 4, 1]) #creat column
 
-        with col1:
+        with col1:#column 1 provide the back button to direct to menu 
             if st.button("⬅ Back"):
                 st.session_state.mode = "menu"
                 st.rerun()
         
-        submit_clicked = False
+        submit_clicked = False #set false first
 
-        with col2:
-            submit_clicked = st.button("Submit")
+        with col2:#column 2 is button submit
+            submit_clicked = st.button("Submit") #set submit_clicked to true
 
-        if submit_clicked:
-            if not all_answered:
+        if submit_clicked:#if click submit
+            if not all_answered:#if have question haven fill in
                 error_box.error(
                     "Please answer ALL symptom questions before continuing."
-                )
-            else:
+                )#display the error
+            else:#all question fill in
                 error_box.empty()
-                st.session_state.mode = "result"
-                st.rerun()
+                st.session_state.mode = "result" #direct to next result page
+                st.rerun()#rerun page
 
         st.markdown('</div>', unsafe_allow_html=True)
 
     # ======================
     # PAGE 3: RESULT
     # ======================
-    elif mode == "result":
+    elif mode == "result":#if result page
         st.markdown(
             '<h3 class="result-title">Diagnosis Result</h3>',
             unsafe_allow_html=True
-        )
+        )#title
 
         st.markdown(
             '<div class="result-divider"></div>',
             unsafe_allow_html=True
-        )
+        )#segment
         env.reset()
         kb.load_all()
 
-        for symptom_name, ans in st.session_state.answers.items():
-            if ans == "YES":
+        for symptom_name, ans in st.session_state.answers.items(): #view all the user answer by question
+            if ans == "YES": #if answer = yes
                 env.assert_string(
-                    f"(symptom (name {symptom_name}) (value yes))")
+                    f"(symptom (name {symptom_name}) (value yes))") #the question answer= yes
 
-        env.run()
+        env.run()#and run the clips
         has_response = any(
                 fact.template.name == "response"
                 for fact in env.facts()
-            )
+            )#checking is there have response result or not
 
-        if has_response:
+        if has_response:# if yes,run function to display
             run_inference()
-        else:
+        else:#if no result
             st.warning("No Diagnosis Found")
             st.info(
                 "The selected symptoms do not satisfy any predefined diagnosis rules.\n\n"
@@ -1581,14 +1581,14 @@ def active_expert_system():
                 "- Multiple minor issues\n\n"
             )
 
-        rcol1, _, rcol2 = st.columns([1, 4, 1])
+        rcol1, _, rcol2 = st.columns([1, 4, 1]) #creat colum
 
-        with rcol1:
+        with rcol1:#display back button to go back to symtom page
             if st.button("⬅ Back"):
                 st.session_state.mode = "symptom"
                 st.rerun()
 
-        with rcol2:
+        with rcol2:#if click home than go to menu page
             if st.button("Home"):
                 st.session_state.mode = "menu"
                 st.session_state.pop("answers", None)
@@ -1598,4 +1598,4 @@ def active_expert_system():
         st.markdown('</div>', unsafe_allow_html=True)
 
 
-active_expert_system()
+active_expert_system()#run the system
