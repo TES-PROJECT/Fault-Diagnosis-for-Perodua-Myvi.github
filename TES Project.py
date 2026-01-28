@@ -1272,7 +1272,7 @@ def question_image(q_label, images):
 #------------------------------
 #output diagnostics and solutions
 #------------------------------
-kb = knowledge_bass()
+kb = knowledge_bass()#set class knowledge_bass = kb
 
 #category: select fault category
 def ask_symptom(category):
@@ -1295,18 +1295,18 @@ def ask_symptom(category):
     return questions #return filter questions
 
 def run_inference():
-    diagnosis_index = 1
-    for fact in env.facts():
-        if fact.template.name != "response":
-            continue
+    diagnosis_index = 1 # set the index number to 1 first
+    for fact in env.facts(): #read all the clips facts
+        if fact.template.name != "response": #only read the fact that = response
+            continue # if no,skip first
 
-        diagnosis = fact["diagnosis"]
+        diagnosis = fact["diagnosis"]#let diagnosis = diagnosis that inside the fact
 
         st.markdown(
         f"""
             <div class="diagnosis-card">
 
-            <div class="diagnosis-title">{diagnosis_index}. {diagnosis}</div>
+            <div class="diagnosis-title">{diagnosis_index}. {diagnosis}</div> 
 
             <div class="diagnosis-section">Potential Reason</div>
             <div class="diagnosis-reason">
@@ -1315,7 +1315,7 @@ def run_inference():
             </div>
             """,
             unsafe_allow_html=True
-        )
+        )#use to diaplay the diagnosis number ,disgnosis and the potential reason that also inside the clpis
 
         if "recommendation" in fact and fact["recommendation"]:
             print("\nRecommendation:")
