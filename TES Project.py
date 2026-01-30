@@ -57,7 +57,7 @@ env.build("""
    (multislot image))
 """)
 
-class knowledge_bass:
+class knowledge_base:
     def electrical_kb(self):
         env.build("""
         (deffacts electrical-questions
@@ -1272,7 +1272,7 @@ def question_image(q_label, images):
 #------------------------------
 #output diagnostics and solutions
 #------------------------------
-kb = knowledge_bass()#set class knowledge_bass = kb
+kb = knowledge_base()#set class knowledge_base = kb
 
 #category: select fault category
 def ask_symptom(category):
